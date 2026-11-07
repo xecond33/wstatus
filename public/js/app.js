@@ -322,7 +322,7 @@
             link.download = item.name;
 
             const label = document.createElement('span');
-            label.textContent = `Video ${index + 1}`;
+            label.textContent = items.length > 1 ? `Part ${index + 1}` : 'Video';
 
             const meta = document.createElement('span');
             meta.className = 'download-meta';

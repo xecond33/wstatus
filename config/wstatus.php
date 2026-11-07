@@ -14,7 +14,7 @@ return [
     'size_budget_bytes' => 15 * 1024 * 1024,
     'max_output_bytes' => 16 * 1024 * 1024,
     'audio_kbps' => 128,
-    'max_video_kbps' => 4500,
+    'max_video_kbps' => 5000,
     'min_video_kbps' => 800,
 
     'max_queue' => 20,

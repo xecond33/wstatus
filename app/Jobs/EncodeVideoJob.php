@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use RuntimeException;
 use Throwable;
 
@@ -47,10 +48,12 @@ class EncodeVideoJob implements ShouldQueue
         $isHdr = (bool) ($job->meta['is_hdr'] ?? false);
         $outputs = [];
         $offset = 0.0;
+        $randomCode = strtolower(Str::random(5));
 
         try {
             foreach ($segments as $index => $segmentDuration) {
-                $outputName = 'wstatus-'.($index + 1).'.mp4';
+                $partSuffix = $segmentCount > 1 ? '-part-'.($index + 1) : '';
+                $outputName = "wstatus-{$randomCode}{$partSuffix}.mp4";
                 $outputPath = "{$directory}/{$outputName}";
                 $absoluteOutput = Storage::disk('local')->path($outputPath);
                 $segmentStart = $start + $offset;
