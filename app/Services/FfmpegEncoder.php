@@ -23,6 +23,7 @@ class FfmpegEncoder
             '-hide_banner',
             '-loglevel', 'error',
             '-nostdin',
+            '-threads', '0',
             '-ss', number_format($start, 3, '.', ''),
             '-i', $input,
             '-t', number_format($duration, 3, '.', ''),
@@ -31,7 +32,6 @@ class FfmpegEncoder
             '-vf', $this->filters($isHdr),
             '-c:v', 'libx264',
             '-preset', config('wstatus.preset'),
-            '-tune', 'film',
             '-profile:v', 'high',
             '-level', '4.1',
             '-pix_fmt', 'yuv420p',
@@ -39,7 +39,7 @@ class FfmpegEncoder
             '-color_trc', 'bt709',
             '-colorspace', 'bt709',
             '-color_range', 'tv',
-            '-crf', '19',
+            '-crf', '20',
             '-maxrate', (int) round($videoKbps * 1.15).'k',
             '-bufsize', (int) round($videoKbps * 2).'k',
             '-g', '60',
@@ -78,11 +78,10 @@ class FfmpegEncoder
             $filters[] = 'format=yuv420p';
         }
 
-        $filters[] = 'scale=1080:1920:force_original_aspect_ratio=decrease:flags=lanczos';
+        $filters[] = 'scale=1080:1920:force_original_aspect_ratio=decrease';
         $filters[] = 'pad=1080:1920:(ow-iw)/2:(oh-ih)/2:color=black';
         $filters[] = 'setsar=1';
         $filters[] = 'fps=30';
-        $filters[] = 'unsharp=3:3:0.6:3:3:0.3';
 
         return implode(',', $filters);
     }
