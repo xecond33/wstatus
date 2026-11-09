@@ -38,7 +38,7 @@ class EncodeVideoJob implements ShouldQueue
             return;
         }
 
-        $job->update(['status' => 'processing', 'progress' => 5]);
+        $job->update(['status' => 'processing', 'progress' => 0]);
 
         $input = Storage::disk('local')->path($job->input_path);
         $directory = "wstatus/{$job->id}";
@@ -59,7 +59,23 @@ class EncodeVideoJob implements ShouldQueue
                 $segmentStart = $start + $offset;
                 $videoKbps = EncodePlan::videoKbps($segmentDuration);
 
-                $encode = function (int $kbps) use ($encoder, $input, $absoluteOutput, $segmentStart, $segmentDuration, $isHdr): void {
+                // Calculate progress range for this segment
+                $segmentBase = (int) round(($index / $segmentCount) * 100);
+                $segmentRange = (int) round((1 / $segmentCount) * 100);
+                $lastDbUpdate = 0;
+
+                $onProgress = function (int $localPercent) use ($job, $segmentBase, $segmentRange, &$lastDbUpdate) {
+                    $totalPercent = (int) min(99, $segmentBase + (int) round($localPercent * $segmentRange / 100));
+                    $now = time();
+
+                    // Throttle DB writes to at most once per second
+                    if ($now > $lastDbUpdate) {
+                        $lastDbUpdate = $now;
+                        $job->update(['progress' => $totalPercent]);
+                    }
+                };
+
+                $encode = function (int $kbps, ?callable $progressCb = null) use ($encoder, $input, $absoluteOutput, $segmentStart, $segmentDuration, $isHdr): void {
                     $encoder->encode(
                         input: $input,
                         output: $absoluteOutput,
@@ -67,10 +83,11 @@ class EncodeVideoJob implements ShouldQueue
                         duration: $segmentDuration,
                         videoKbps: $kbps,
                         isHdr: $isHdr,
+                        onProgress: $progressCb,
                     );
                 };
 
-                $encode($videoKbps);
+                $encode($videoKbps, $onProgress);
 
                 $size = (int) (filesize($absoluteOutput) ?: 0);
 
@@ -95,8 +112,9 @@ class EncodeVideoJob implements ShouldQueue
                     'size' => $size,
                 ];
 
+                // Mark segment complete
                 $job->update([
-                    'progress' => (int) round((($index + 1) / $segmentCount) * 100),
+                    'progress' => (int) min(99, round((($index + 1) / $segmentCount) * 100)),
                 ]);
 
                 $offset += $segmentDuration;
