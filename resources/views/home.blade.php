@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>WSTATUS — Biar Status WhatsApp nggak pecah!</title>
     <meta name="description" content="Optimalkan video supaya tetap jernih saat di-upload ke WhatsApp Status.">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
     <div class="page">
@@ -124,6 +124,6 @@
         <p class="noscript">Wstatus butuh JavaScript untuk mengunggah dan memproses video.</p>
     </noscript>
 
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="/js/app.js" defer></script>
 </body>
 </html>
