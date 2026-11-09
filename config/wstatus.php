@@ -4,7 +4,7 @@ return [
 
     'ffmpeg' => env('FFMPEG_PATH', 'ffmpeg'),
     'ffprobe' => env('FFPROBE_PATH', 'ffprobe'),
-    'preset' => env('WSTATUS_PRESET', 'medium'),
+    'preset' => env('WSTATUS_PRESET', 'faster'),
 
     'max_input_mb' => (int) env('WSTATUS_MAX_INPUT_MB', 200),
     'max_input_duration' => 300,

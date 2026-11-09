@@ -35,6 +35,7 @@
     let duration = 0;
     let previewUrl = null;
     let busy = false;
+    let visualProgress = 0;
 
     const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 
@@ -82,6 +83,7 @@
         progressWrap.hidden = true;
         progressBar.style.width = '0%';
         progressValue.textContent = '0%';
+        visualProgress = 0;
     }
 
     function updateRange(changed) {
@@ -283,6 +285,7 @@
             })
             .then((payload) => {
                 if (payload.status === 'done') {
+                    visualProgress = 100;
                     setProgress(100, 'Selesai');
                     renderDownloads(payload.downloads || []);
                     setBusy(false);
@@ -298,10 +301,12 @@
                     return;
                 }
 
-                setProgress(
-                    payload.progress || 0,
-                    payload.status === 'processing' ? 'Memproses video…' : 'Menunggu antrean…',
-                );
+                if (payload.status === 'processing') {
+                    visualProgress = Math.min(92, Math.max(visualProgress + 5, payload.progress || 10));
+                    setProgress(visualProgress, 'Mengoptimalkan video Full HD…');
+                } else {
+                    setProgress(payload.progress || 0, 'Menunggu antrean…');
+                }
 
                 window.setTimeout(() => poll(url), 1500);
             })
