@@ -6,7 +6,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>WSTATUS — Biar Status WhatsApp nggak pecah!</title>
     <meta name="description" content="Optimalkan video supaya tetap jernih saat di-upload ke WhatsApp Status.">
-    <link rel="stylesheet" href="/css/app.css">
+    @if (file_exists(public_path('css/app.css')))
+        <style>
+            {!! file_get_contents(public_path('css/app.css')) !!}
+        </style>
+    @else
+        <link rel="stylesheet" href="/css/app.css">
+    @endif
 </head>
 <body>
     <div class="page">
@@ -124,6 +130,12 @@
         <p class="noscript">Wstatus butuh JavaScript untuk mengunggah dan memproses video.</p>
     </noscript>
 
-    <script src="/js/app.js" defer></script>
+    @if (file_exists(public_path('js/app.js')))
+        <script>
+            {!! file_get_contents(public_path('js/app.js')) !!}
+        </script>
+    @else
+        <script src="/js/app.js" defer></script>
+    @endif
 </body>
 </html>
